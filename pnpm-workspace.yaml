@@ -1,0 +1,5 @@
+packages:
+  - 'packages/*'
+allowBuilds:
+  pkcs11js: true
+  protobufjs: true

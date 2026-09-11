@@ -1,0 +1,21 @@
+{
+  "name": "@app/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "commander": "^15.0.0",
+    "ts-node": "^10.9.2"
+  }
+}

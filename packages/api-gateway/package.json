@@ -1,0 +1,38 @@
+{
+  "name": "@app/api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/server.ts",
+    "smoke-test": "ts-node src/scripts/smoke-test.ts",
+    "keys": "ts-node src/cli/keys.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.21.0",
+      "onFail": "download"
+    }
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.4",
+    "@hyperledger/fabric-gateway": "^1.12.1",
+    "commander": "^15.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.20.1",
+    "ts-node": "^10.9.2",
+    "typescript": "5.4.5"
+  }
+}

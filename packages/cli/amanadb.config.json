@@ -1,0 +1,8 @@
+{
+  "channelName": "mychannel",
+  "fabricPath": "~/fabric",
+  "fabricSamplesPath": "~/fabric/fabric-samples",
+  "chaincodePath": "../storage-engine",
+  "chaincodeName": "storage",
+  "gatewayPath": "../api-gateway"
+}
