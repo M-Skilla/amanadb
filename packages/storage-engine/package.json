@@ -1,5 +1,5 @@
 {
-  "name": "@app/storage",
+  "name": "@amanadb/storage",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
