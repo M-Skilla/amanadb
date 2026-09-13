@@ -4,9 +4,10 @@
   "scripts": {
     "cli": "pnpm --filter @amanadb/cli exec ts-node src/index.ts",
     "init": "pnpm run cli init",
+    "reset": "pnpm run cli reset",
     "deploy": "pnpm run cli deploy",
     "start": "pnpm run cli start",
     "keys": "pnpm --filter @amanadb/api run keys",
-    "gateway:dev": "pnpm --filter @amanadb/api exec ts-node src/app.ts"
+    "gateway:dev": "pnpm --filter @amanadb/api exec ts-node src/server.ts"
   }
 }

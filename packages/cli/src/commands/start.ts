@@ -1,12 +1,15 @@
 import { execSync, spawn } from 'child_process';
 import * as fs from 'fs';
-import { loadConfig } from '../config';
+import { loadConfig, needsBootstrap } from '../config';
+
+
+
 
 export function start(): void {
     const config = loadConfig();
     const keystorePath = `${config.gatewayPath}/.amanadb-keys.json`;
 
-    if (!fs.existsSync(keystorePath)) {
+    if (needsBootstrap(config)) {
         console.log('No API keys found — bootstrapping an initial admin key...');
         execSync('pnpm exec ts-node src/cli/keys.ts create --name root --role admin', {
             cwd: config.gatewayPath,
@@ -18,7 +21,7 @@ export function start(): void {
     }
 
     console.log('Starting the API Gateway...');
-    const child = spawn('pnpm', ['exec', 'ts-node', 'src/app.ts'], {
+    const child = spawn('pnpm', ['exec', 'ts-node', 'src/server.ts'], {
         cwd: config.gatewayPath,
         stdio: 'inherit',
     });

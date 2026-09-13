@@ -19,7 +19,9 @@ function hashKey(rawKey: string): string {
 
 function loadStore(): StoredKey[] {
     if (!fs.existsSync(STORE_PATH)) return [];
-    return JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
+    const content = fs.readFileSync(STORE_PATH, 'utf8').trim();
+    if (content.length === 0) return []; // empty file — treat same as "doesn't exist yet"
+    return JSON.parse(content);
 }
 
 function saveStore(keys: StoredKey[]): void {

@@ -1,8 +1,14 @@
 [
   {
-    "name": "root",
+    "name": "test",
     "role": "admin",
-    "hash": "875de760b1c7c32135e9f652fc73290cf861ae979962456d5a359d6182141d4f",
-    "createdAt": "2026-09-11T05:45:07.485Z"
+    "hash": "27d324bea5a1251cabce79f28077f81d474491a8b86d58d92f997afbac3d32a8",
+    "createdAt": "2026-09-13T05:38:35.937Z"
+  },
+  {
+    "name": "test-client",
+    "role": "client",
+    "hash": "1d8c0262d9c278c9080a9301499b38f2a8889171dea9951fb6031d820817955d",
+    "createdAt": "2026-09-13T06:30:47.460Z"
   }
 ]

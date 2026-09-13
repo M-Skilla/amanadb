@@ -3,6 +3,9 @@ import * as fs from 'fs';
 import { loadConfig } from '../config';
 import { checkPreflight } from '../preflight';
 
+const FABRIC_VERSION = '2.5.16';
+const CA_VERSION = '1.5.17';
+
 function checkDockerAccess(): void {
     try {
         execSync('docker info', { stdio: 'pipe' });
@@ -27,20 +30,32 @@ export function init(): void {
     checkPreflight()
     const config = loadConfig();
     checkDockerAccess();
+    const testNetworkDir = `${config.fabricSamplesPath}/test-network`;
 
     if (!fs.existsSync(config.fabricSamplesPath)) {
         console.log('fabric-samples not found — cloning...');
         const parentDir = require('path').dirname(config.fabricSamplesPath);
         fs.mkdirSync(parentDir, { recursive: true });
-        execSync('curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- docker samples binary', {
-            cwd: parentDir,
-            stdio: 'inherit',
-        });
+        console.log(`Installing Fabric binaries/images (pinned: v${FABRIC_VERSION}, CA v${CA_VERSION})...`);
+        execSync(
+            `curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- --fabric-version ${FABRIC_VERSION} --ca-version ${CA_VERSION} docker samples binary`,
+            { cwd: parentDir, stdio: 'inherit' }
+        );
     } else {
         console.log(`Using existing fabric-samples at ${config.fabricSamplesPath}`);
     }
 
-    const testNetworkDir = `${config.fabricSamplesPath}/test-network`;
+    const existingContainers = execSync(
+        `docker ps -a --filter "name=peer0.org1" -q`,
+        { encoding: 'utf8' }
+    ).trim();
+
+    if (existingContainers.length > 0) {
+        console.error('\n✖ An AmanaDB network already appears to exist.');
+        console.error('  If you\'re hitting errors, run "amanadb reset" first, then retry "amanadb init".\n');
+        process.exit(1);
+    }
+
     console.log('Bringing up the network...');
     execSync(`./network.sh up createChannel -c ${config.channelName} -ca -s couchdb`, {
         cwd: testNetworkDir,

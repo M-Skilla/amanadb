@@ -208,16 +208,16 @@ importers:
   .:
     dependencies:
       fabric-contract-api:
-        specifier: ^2.5.8
+        specifier: 2.5.8
         version: 2.5.8
       fabric-shim:
-        specifier: ^2.5.8
+        specifier: 2.5.8
         version: 2.5.8
       json-stringify-deterministic:
-        specifier: ^1.0.16
+        specifier: 1.0.16
         version: 1.0.16
       sort-keys-recursive:
-        specifier: ^2.1.10
+        specifier: 2.1.10
         version: 2.1.10
     devDependencies:
       '@types/node':

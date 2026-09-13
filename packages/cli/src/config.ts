@@ -4,15 +4,15 @@ import * as os from "os";
 import { execSync } from "child_process";
 
 interface AmanaConfig {
-  channelName: string;
-  fabricSamplesPath: string;
-  chaincodePath: string;
-  chaincodeName: string;
-  gatewayPath: string;
+    channelName: string;
+    fabricSamplesPath: string;
+    chaincodePath: string;
+    chaincodeName: string;
+    gatewayPath: string;
 }
 
 function expandHome(p: string): string {
-  return p.startsWith("~") ? path.join(os.homedir(), p.slice(1)) : p;
+    return p.startsWith("~") ? path.join(os.homedir(), p.slice(1)) : p;
 }
 
 function findConfigFile(startDir: string): string {
@@ -32,15 +32,15 @@ function findConfigFile(startDir: string): string {
 }
 
 export function loadConfig(): AmanaConfig {
-  const configPath = findConfigFile(process.cwd());
+    const configPath = findConfigFile(process.cwd());
     const workspaceRoot = path.dirname(configPath);
-  const raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
-  return {
-    ...raw,
-    fabricSamplesPath: expandHome(raw.fabricSamplesPath),
-    chaincodePath: path.resolve(workspaceRoot, raw.chaincodePath),
-    gatewayPath: path.resolve(workspaceRoot, raw.gatewayPath),
-  };
+    const raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    return {
+        ...raw,
+        fabricSamplesPath: expandHome(raw.fabricSamplesPath),
+        chaincodePath: path.resolve(workspaceRoot, raw.chaincodePath),
+        gatewayPath: path.resolve(workspaceRoot, raw.gatewayPath),
+    };
 }
 
 // packages/cli/src/commands/deploy.ts, added after the chaincode deploy step
@@ -52,7 +52,9 @@ export function ensureGatewayIdentity(config: AmanaConfig): void {
         console.log('Enrolling gateway service identity (org1-service)...');
         const caClientHome = `${testNetworkDir}/organizations/peerOrganizations/org1.example.com/`;
         const tlsCert = `${testNetworkDir}/organizations/fabric-ca/org1/tls-cert.pem`;
-        const env = { ...process.env, FABRIC_CA_CLIENT_HOME: caClientHome };
+        const env = {
+            ...process.env, FABRIC_CA_CLIENT_HOME: caClientHome, PATH: `${config.fabricSamplesPath}/bin:${process.env.PATH}`,
+        };
 
         execSync(
             `fabric-ca-client register --caname ca-org1 --id.name org1-service --id.secret org1servicepw --id.type client --tls.certfiles ${tlsCert}`,
@@ -72,7 +74,7 @@ export function ensureGatewayIdentity(config: AmanaConfig): void {
     const keyFile = keystoreFiles[0]; // the hash-named private key file
 
     const envContent = [
-        `PORT=3000`,
+        `PORT=3001`,
         `AMANADB_CHANNEL=${config.channelName}`,
         `AMANADB_CHAINCODE=${config.chaincodeName}`,
         `AMANADB_MSP_ID=Org1MSP`,
@@ -85,4 +87,15 @@ export function ensureGatewayIdentity(config: AmanaConfig): void {
 
     fs.writeFileSync(`${config.gatewayPath}/.env`, envContent);
     console.log('✔ Gateway .env generated automatically.');
+}
+
+export function needsBootstrap(config: AmanaConfig): boolean {
+    const keystorePath = `${config.gatewayPath}/.amanadb-keys.json`;
+    if (!fs.existsSync(keystorePath)) return true;
+    try {
+        const keys = JSON.parse(fs.readFileSync(keystorePath, 'utf8'));
+        return !Array.isArray(keys) || keys.length === 0;
+    } catch {
+        return true; // corrupt/unreadable file — safest to treat as needing bootstrap
+    }
 }
