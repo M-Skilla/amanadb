@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
+  - '!packages/storage-engine'
 allowBuilds:
   pkcs11js: true
   protobufjs: true
