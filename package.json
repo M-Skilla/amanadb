@@ -6,6 +6,9 @@
     "init": "pnpm run cli init",
     "reset": "pnpm run cli reset",
     "deploy": "pnpm run cli deploy",
+    "harden": "pnpm run cli harden",
+    "backup": "pnpm run cli backup",
+    "restore": "pnpm run cli restore",
     "start": "pnpm run cli start",
     "keys": "pnpm --filter @amanadb/api run keys",
     "gateway:dev": "pnpm --filter @amanadb/api exec ts-node src/server.ts"

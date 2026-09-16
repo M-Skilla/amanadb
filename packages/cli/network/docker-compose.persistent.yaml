@@ -1,0 +1,71 @@
+# AmanaDB-owned compose override for persistent, hardened network hosting.
+#
+# This is NOT part of the vendored fabric-samples checkout — it lives in this repo and is
+# layered on top of fabric-samples' own compose files as an extra `-f` at `docker compose up`
+# time (see `amanadb harden`). That means it survives a fresh fabric-samples re-clone, unlike
+# hand-editing the vendored compose/*.yaml files directly.
+#
+# It replaces the fabric-samples defaults in three ways:
+#   1. CA bootstrap admin credentials (hardcoded to admin:adminpw upstream) come from env vars.
+#   2. CouchDB admin credentials (hardcoded to admin:adminpw upstream) come from env vars, on
+#      both the CouchDB container and the paired peer's CORE_LEDGER_STATE_COUCHDBCONFIG_* vars.
+#   3. CouchDB gets a named volume (upstream has none — world state lives in the container's
+#      writable layer otherwise) and every Fabric service gets `restart: unless-stopped`, so the
+#      network survives a host reboot without someone re-running `network.sh up`.
+#
+# Values are supplied via a local .env file — see .env.example for the required variable names.
+# Real secrets never go in this file or get committed.
+#
+# Known limitation: this only secures the *running* containers. The org1admin/org2admin/peer
+# identities already enrolled on disk under test-network/organizations/ were created by
+# fabric-samples' own registerEnroll.sh using ITS hardcoded secrets (org1adminpw, org2adminpw) —
+# rotating those requires re-enrollment against the CA, not a compose change, and isn't handled
+# here.
+
+services:
+  ca_org1:
+    command: sh -c 'fabric-ca-server start -b ${CA_ORG1_ADMIN_USER}:${CA_ORG1_ADMIN_PASS} -d'
+    restart: unless-stopped
+
+  ca_org2:
+    command: sh -c 'fabric-ca-server start -b ${CA_ORG2_ADMIN_USER}:${CA_ORG2_ADMIN_PASS} -d'
+    restart: unless-stopped
+
+  ca_orderer:
+    command: sh -c 'fabric-ca-server start -b ${CA_ORDERER_ADMIN_USER}:${CA_ORDERER_ADMIN_PASS} -d'
+    restart: unless-stopped
+
+  orderer.example.com:
+    restart: unless-stopped
+
+  couchdb0:
+    environment:
+      - COUCHDB_USER=${COUCHDB_ORG1_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_ORG1_PASS}
+    volumes:
+      - couchdb0-data:/opt/couchdb/data
+    restart: unless-stopped
+
+  couchdb1:
+    environment:
+      - COUCHDB_USER=${COUCHDB_ORG2_USER}
+      - COUCHDB_PASSWORD=${COUCHDB_ORG2_PASS}
+    volumes:
+      - couchdb1-data:/opt/couchdb/data
+    restart: unless-stopped
+
+  peer0.org1.example.com:
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_ORG1_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_ORG1_PASS}
+    restart: unless-stopped
+
+  peer0.org2.example.com:
+    environment:
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=${COUCHDB_ORG2_USER}
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=${COUCHDB_ORG2_PASS}
+    restart: unless-stopped
+
+volumes:
+  couchdb0-data:
+  couchdb1-data:
